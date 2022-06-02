@@ -1,6 +1,6 @@
 # 2022-fdi_flows
 
-**Live demo** https://unctad-data.github.io/2022-fdi_flows/
+**Live demo** https://unctad-infovis.github.io/2022-fdi_flows/
 
 ## Rights of usage
 
