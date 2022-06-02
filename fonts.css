@@ -1,0 +1,89 @@
+/* === Roboto - regular */
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./font/Roboto-Regular.eot");
+	src: local('Roboto'),
+		url("./font/Roboto-Regular.eot") format("embedded-opentype"),
+		url("./font/Roboto-Regular.woff2") format("woff2"),
+		url("./font/Roboto-Regular.woff") format("woff"),
+		url("./font/Roboto-Regular.ttf") format("truetype"),
+		url("./font/Roboto-Regular.svg") format("svg");
+}
+
+/* === Roboto - 700 */
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("./font/Roboto-Bold.eot");
+	src: local('Roboto'),
+		url("./font/Roboto-Bold.eot") format("embedded-opentype"),
+		url("./font/Roboto-Bold.woff2") format("woff2"),
+		url("./font/Roboto-Bold.woff") format("woff"),
+		url("./font/Roboto-Bold.ttf") format("truetype"),
+		url("./font/Roboto-Bold.svg") format("svg");
+}
+
+/* === Roboto Condensed - regular */
+@font-face {
+	font-family: 'Roboto Condensed';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./font/RobotoCondensed-Regular.eot");
+	src: local('Roboto Condensed'),
+		url("./font/RobotoCondensed-Regular.eot") format("embedded-opentype"),
+		url("./font/RobotoCondensed-Regular.woff2") format("woff2"),
+		url("./font/RobotoCondensed-Regular.woff") format("woff"),
+		url("./font/RobotoCondensed-Regular.ttf") format("truetype"),
+		url("./font/RobotoCondensed-Regular.svg") format("svg");
+}
+
+/* === Roboto Condensed - 700 */
+@font-face {
+	font-family: 'Roboto Condensed';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("./font/RobotoCondensed-Bold.eot");
+	src: local('Roboto Condensed'),
+		url("./font/RobotoCondensed-Bold.eot") format("embedded-opentype"),
+		url("./font/RobotoCondensed-Bold.woff2") format("woff2"),
+		url("./font/RobotoCondensed-Bold.woff") format("woff"),
+		url("./font/RobotoCondensed-Bold.ttf") format("truetype"),
+		url("./font/RobotoCondensed-Bold.svg") format("svg");
+}
+
+/* === Roboto Serif - regular */
+@font-face {
+	font-family: 'Roboto Serif';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./font/RobotoSerif-Regular.eot");
+	src: local('Roboto Serif'),
+		url("./font/RobotoSerif-Regular.eot") format("embedded-opentype"),
+		url("./font/RobotoSerif-Regular.woff2") format("woff2"),
+		url("./font/RobotoSerif-Regular.woff") format("woff"),
+		url("./font/RobotoSerif-Regular.ttf") format("truetype"),
+		url("./font/RobotoSerif-Regular.svg") format("svg");
+}
+
+/* === Roboto Serif - 700 */
+@font-face {
+	font-family: 'Roboto Serif';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("./font/RobotoSerif-Bold.eot");
+	src: local('Roboto Serif'),
+		url("./font/RobotoSerif-Bold.eot") format("embedded-opentype"),
+		url("./font/RobotoSerif-Bold.woff2") format("woff2"),
+		url("./font/RobotoSerif-Bold.woff") format("woff"),
+		url("./font/RobotoSerif-Bold.ttf") format("truetype"),
+		url("./font/RobotoSerif-Bold.svg") format("svg");
+}
