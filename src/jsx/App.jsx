@@ -262,6 +262,11 @@ const App = () => {
         lineColor: 'transparent',
         lineWidth: 0,
         opposite: false,
+        plotLines: [{
+          color: 'rgba(124, 112, 103, 0.6)',
+          value: 0,
+          width: 1
+        }],
         showLastLabel: true,
         showFirstLabel: true,
         type: 'linear',
