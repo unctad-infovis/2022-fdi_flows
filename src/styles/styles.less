@@ -6,9 +6,9 @@
 .app {
   font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
   .layout {
+    display: flex;
+    overflow: scroll;
     .container {
-      padding: 20px;
-      box-sizing: border-box;
       h3 {
         display: inline-block;
         margin: 0 0 0 0;
@@ -20,13 +20,13 @@
           border: 1px solid @ungrey30;
           box-shadow: 1px 1px 1px #f1f1f1;
           box-sizing: border-box;
-          margin: 10px;
+          margin: 10px 5px;
           padding: 10px;
         }
       }
       &.left {
-        float: left;
-        width: 300px;
+        min-width: 260px;
+        max-width: 260px;
         .name_container {
           display: block;
         }
@@ -67,7 +67,8 @@
         }
       }
       &.right {
-        margin-left: 260px;
+        min-width: 630px;
+        width: 100%;
         .title_container {
           .options_container {
             float: right;

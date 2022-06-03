@@ -67,37 +67,6 @@ const App = () => {
     });
   }, []);
 
-  // Set active data.
-  useEffect(() => {
-    if (data !== false) {
-      setActiveData(data[dataType]);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (activeData !== undefined && activeData !== false) {
-      if (!chart) {
-        createChart();
-        toggleLegend();
-      }
-    }
-  }, [activeData]);
-
-  useEffect(() => {
-    setActiveData(data[dataType]);
-    if (chart) {
-      while (chart.series.length > 0) {
-        chart.series[0].remove(false);
-      }
-      data[dataType].map((data) => {
-        data.visible = (selected[data.name] === true) ? true : false;
-        chart.addSeries(data, false);
-      });
-      toggleLegend();
-      chart.redraw()
-    }
-  }, [dataType]);
-
   // This is to clean data.
   const cleanData = (data) => {
     let current_level = 0;
@@ -126,8 +95,35 @@ const App = () => {
         }
       });
     })
+    setActiveData(data[dataType]);
     return data;
   };
+
+  // Change active data.
+  useEffect(() => {
+    if (activeData !== undefined && activeData !== false) {
+      if (!chart) {
+        createChart();
+        toggleLegend();
+      }
+    }
+  }, [activeData]);
+
+  // Change data type.
+  useEffect(() => {
+    setActiveData(data[dataType]);
+    if (chart) {
+      while (chart.series.length > 0) {
+        chart.series[0].remove(false);
+      }
+      data[dataType].map((data) => {
+        data.visible = (selected[data.name] === true) ? true : false;
+        chart.addSeries(data, false);
+      });
+      toggleLegend();
+      chart.redraw();
+    }
+  }, [dataType]);
 
   // This is to toggle checkboxes and to toggle data.
   const toggleData = (area) => {
