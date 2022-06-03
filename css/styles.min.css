@@ -1,9 +1,9 @@
 .app___2khK2 {
   font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
 }
-.app___2khK2 .layout___ZUeJj .container___ki5VE {
-  padding: 20px;
-  box-sizing: border-box;
+.app___2khK2 .layout___ZUeJj {
+  display: flex;
+  overflow: scroll;
 }
 .app___2khK2 .layout___ZUeJj .container___ki5VE h3 {
   display: inline-block;
@@ -15,12 +15,12 @@
   border: 1px solid rgba(124, 112, 103, 0.2);
   box-shadow: 1px 1px 1px #f1f1f1;
   box-sizing: border-box;
-  margin: 10px;
+  margin: 10px 5px;
   padding: 10px;
 }
 .app___2khK2 .layout___ZUeJj .container___ki5VE.left___1jdF3 {
-  float: left;
-  width: 300px;
+  min-width: 260px;
+  max-width: 260px;
 }
 .app___2khK2 .layout___ZUeJj .container___ki5VE.left___1jdF3 .name_container___2QGyK {
   display: block;
@@ -59,7 +59,8 @@
   vertical-align: middle;
 }
 .app___2khK2 .layout___ZUeJj .container___ki5VE.right___1WS2S {
-  margin-left: 260px;
+  min-width: 630px;
+  width: 100%;
 }
 .app___2khK2 .layout___ZUeJj .container___ki5VE.right___1WS2S .title_container___28dn4 .options_container___3MXSh {
   float: right;
