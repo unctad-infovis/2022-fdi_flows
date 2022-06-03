@@ -8,8 +8,9 @@ import * as d3 from 'd3';
 import Highcharts from 'highcharts';
 
 // Load helpers.
-import formatNr from './helpers/formatNr.jsx';
-import roundNr from './helpers/roundNr.jsx';
+import formatNr from './helpers/formatNr.js';
+import roundNr from './helpers/roundNr.js';
+import legendIcon from './helpers/LegendIcon.jsx';
 
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
 (function (H) {
@@ -48,47 +49,100 @@ const years = (Array(end_year - start_year + 1).fill().map((_, idx) => start_yea
 const enabled = []
 
 const App = () => {
+  // Data states.
   const [data, setData] = useState(false);
-  const [checked, setChecked] = useState([]);
-  const [relativeToPopulation, setRelativeToPopulation] = useState(false);
-  const [legend, setLegend] = useState(false);
+  const [activeData, setActiveData] = useState(false);
+  const [dataType, setDataType] = useState('fdi_inflows');
+  // Data selection states.
   const [searchTerm, setSearchTerm] = useState('');
+  const [selected, setSelected] = useState({'World': true});
+  const [visible, setVisible] = useState({'World': true});
+  const [legend, setLegend] = useState(false);
+  // Not used.
+  const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
     d3.json('./data/data2020.json').then((json_data) => {
-      setChecked(json_data.fdi_data.map((area, i) => {
-        return ((area.visible === true) ? true : false);
-      }));
-      setData(cleanData(json_data.fdi_data));
+      setData(cleanData(json_data));
     });
   }, []);
 
-  // Create the chart when data is set.
+  // Set active data.
   useEffect(() => {
     if (data !== false) {
-      createChart();
-      toggleData(0);
+      setActiveData(data[dataType]);
     }
   }, [data]);
 
-  const cleanData = (data) => {
-    data = data.map((area, i) => {
-      return {
-        data: years.map((year) => parseFloat(area[year])),
-        level: parseInt(area.level),
-        name: area['Region/economy'],
-        visible: (i === 0) ? true : false
+  useEffect(() => {
+    if (activeData !== undefined && activeData !== false) {
+      if (!chart) {
+        createChart();
+        toggleLegend();
       }
-    });
+    }
+  }, [activeData]);
+
+  useEffect(() => {
+    setActiveData(data[dataType]);
+    if (chart) {
+      while (chart.series.length > 0) {
+        chart.series[0].remove(false);
+      }
+      data[dataType].map((data) => {
+        data.visible = (selected[data.name] === true) ? true : false;
+        chart.addSeries(data, false);
+      });
+      toggleLegend();
+      chart.redraw()
+    }
+  }, [dataType]);
+
+  // This is to clean data.
+  const cleanData = (data) => {
+    let current_level = 0;
+    let parents = [];
+    ['fdi_inflows', 'fdi_outflows'].map((type) => {
+      data[type] = data[type].map((area, i) => {
+        area.level = parseInt(area.level);
+        if (area.level < current_level) {
+          while (area.level < current_level) {
+            current_level--;
+            parents.pop();
+          }
+          parents.push(area[['Region/economy']])
+        }
+        else if (area.level >= current_level && area.type !== 'country') {
+          parents.push(area[['Region/economy']])
+        }
+        current_level = area.level;
+        return {
+          area_type: area.type,
+          data: years.map((year) => parseFloat(area[year])),
+          level: area.level,
+          name: area['Region/economy'],
+          parents: [...parents],
+          visible: (visible[area['Region/economy']] === true) ? true : false
+        }
+      });
+    })
     return data;
   };
 
   // This is to toggle checkboxes and to toggle data.
-  const toggleData = (i) => {
-    chart.series[i].setVisible(!checked[i], false);
-    checked[i] = !checked[i];
-    setChecked([...checked]);
+  const toggleData = (area) => {
+    chart.series.map((serie, i) => {
+      if (serie.name === area.name) {
+        chart.series[i].setVisible(!selected[area.name], false);
+      }
+    });
+    selected[area.name] = !selected[area.name];
+    setSelected(selected);
+    toggleLegend();
+    chart.redraw();
+  };
 
+  const toggleLegend = () => {
     setLegend(chart.series.filter((serie) => {
       if (serie.visible === true) {
         return {
@@ -98,29 +152,47 @@ const App = () => {
         }
       }
     }));
-    chart.redraw();
-  };
+  }
+
+  const search = () => {
+    activeData.map((area, i) => {
+      if (event.target.value === '') {
+        visible[area.name] = true;
+      }
+      else if (area.name.toLowerCase().includes(event.target.value.toLowerCase()) === true) {
+        visible[area.name] = true;
+        area.parents.map((parent) => {
+          visible[parent] = true;
+        });
+      }
+      else {
+        visible[area.name] = false;
+      }
+    });
+    setVisible(visible);
+    setSearchTerm(event.target.value)
+  }
 
   // This is to toggle linear or logarithmic scale.
   const toggleLinearLogarithmic = (type) => {
     chart.yAxis[0].update({
       type: type
     });
-    let elements = document.getElementsByTagName('button');
+    let elements = document.getElementsByClassName(style.linearlogarithmic);
     for (var i = 0, all = elements.length; i < all; i++) { 
       elements[i].classList.remove(style.selected);
     }
     event.target.classList.add(style.selected);
   }
 
-  const search = () => {
-    setSearchTerm(event.target.value)
-  }
-  const toggleListItem = (search_term, area) => {
-    if (search_term === '') {
-      return 'block';
+  // This is to toggle linear or logarithmic scale.
+  const toggleDataType = (type) => {
+    let elements = document.getElementsByClassName(style.data_type);
+    for (var i = 0, all = elements.length; i < all; i++) { 
+      elements[i].classList.remove(style.selected);
     }
-    return (area.toLowerCase().includes(search_term.toLowerCase()) === false) ? 'none' : 'block'; 
+    event.target.classList.add(style.selected);
+    setDataType(type);
   }
 
   // Not used.
@@ -129,24 +201,6 @@ const App = () => {
   }
 
   // This is to draw the legend icon.
-  const legendIcon = (symbol, color) => {
-    if (symbol === 'square') {
-      return (<svg><path fill="none" d="M 0 11 L 16 11" stroke={color} strokeWidth="2"></path><path fill={color} d="M 4 7 L 12 7 L 12 15 L 4 15 Z" opacity="1"></path></svg>);
-    }
-    else if (symbol === 'circle') {
-      return (<svg><path fill="none" d="M 0 11 L 16 11" stroke={color} strokeWidth="2"></path><path fill={color} d="M 8 15 A 4 4 0 1 1 8.003999999333336 14.999998000000167 Z" opacity="1"></path></svg>);
-    }
-    else if (symbol === 'diamond') {
-      return (<svg><path fill="none" d="M 0 11 L 16 11" stroke={color} strokeWidth="2"></path><path fill={color} d="M 8 7 L 12 11 L 8 15 L 4 11 Z" opacity="1"></path></svg>);
-    }
-    else if (symbol === 'triangle-down') {
-      return (<svg><path fill="none" d="M 0 11 L 16 11" stroke={color} strokeWidth="2"></path><path fill={color} d="M 4 7 L 12 7 L 8 15 Z" opacity="1"></path></svg>);
-    }
-    else if (symbol === 'triangle') {
-      return (<svg><path fill="none" d="M 0 11 L 16 11" stroke={color} strokeWidth="2"></path><path fill={color} d="M 8 7 L 12 15 L 4 15 Z" opacity="1"></path></svg>);
-    }
-  }
-
   const createChart = () => {
     chart = Highcharts.chart('highchart-container', {
       chart: {
@@ -156,7 +210,7 @@ const App = () => {
             style: {
               fontFamily: 'Roboto',
               fontSize: 14,
-              fontWeight: 'normal',
+              fontWeight: 400,
             },
             fill: '#fff',
             r: 0,
@@ -176,7 +230,7 @@ const App = () => {
           color: '#7c7067',
           fontFamily: 'Roboto',
           fontSize: 16,
-          fontWeight: 'normal'
+          fontWeight: 400
         },
         zoomType: 'x',
       },
@@ -191,6 +245,9 @@ const App = () => {
       },
       yAxis: {
         allowDecimals: true,
+        custom: {
+          allowNegativeLog: true
+        },
         gridLineColor: 'rgba(124, 112, 103, 0.2)',
         gridLineWidth: 1,
         gridLineDashStyle: 'shortdot',
@@ -199,16 +256,13 @@ const App = () => {
             color: '#7c7067',
             fontFamily: 'Roboto',
             fontSize: 12,
-            fontWeight: 'normal',
+            fontWeight: 400,
           }
         },
         lineColor: 'transparent',
         lineWidth: 0,
         opposite: false,
         showLastLabel: true,
-        custom: {
-          allowNegativeLog: true
-        },
         showFirstLabel: true,
         type: 'linear',
         title: {
@@ -220,9 +274,9 @@ const App = () => {
             color: '#7c7067',
             fontFamily: 'Roboto',
             fontSize: 10,
+            fontWeight: 400,
             letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-            fontWeight: 'normal'
+            textTransform: 'uppercase'
           },
           text: 'Millions of dollars',
           verticalAlign:'top',
@@ -232,13 +286,13 @@ const App = () => {
       },
       xAxis: {
         allowDecimals: false,
-        categories: years,
         labels: {
+          rotation: 0,
           style: {
             color: '#7c7067',
             fontFamily: 'Roboto',
-            fontWeight: 'normal',
             fontSize: 12,
+            fontWeight: 400
           },
           y: 20
         },
@@ -259,9 +313,9 @@ const App = () => {
             color: '#7c7067',
             fontFamily: 'Roboto',
             fontSize: 10,
+            fontWeight: 400,
             letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-            fontWeight: 'normal'
+            textTransform: 'uppercase'
           },
           text: 'Year',
         },
@@ -273,17 +327,11 @@ const App = () => {
         crosshairs: true,
         borderWidth: 1,
         formatter: function () {
-          const values = this.points.map((point, i) => {
-            return [point.series.name, point.y, point.color];
-          })
+          const values = this.points.map((point, i) => [point.series.name, point.y, point.color]);
           values.sort((a, b) => (a[1] < b[1] ? 1 : -1));
-          let html = '<div class="' + style.tooltip_container + '"><h3 class="' + style.tooltip_header + '">Year ' + this.x + '</h3>';
           const rows = [];
-          rows.push(values.map((point, i) => {
-            return '<div style="color: ' + point[2] + '"><span class="' + style.tooltip_label + '">' + point[0] + ':</span> <span class="' + style.tooltip_value + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>';
-          }).join(''));
-          html = html + rows;
-          return html;
+          rows.push(values.map((point, i) => '<div style="color: ' + point[2] + '"><span class="' + style.tooltip_label + '">' + point[0] + ':</span> <span class="' + style.tooltip_value + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>').join(''));
+          return '<div class="' + style.tooltip_container + '"><h3 class="' + style.tooltip_header + '">Year ' + this.x + '</h3>' + rows;
         },
         shadow: false,
         shared: true,
@@ -291,7 +339,7 @@ const App = () => {
           color: '#7c7067',
           fontFamily: 'Roboto',
           fontSize: 12,
-          fontWeight: 'normal',
+          fontWeight: 400,
         },
         useHTML: true,
       },
@@ -325,10 +373,11 @@ const App = () => {
               enabled: true,
               lineWidth: 2
             }
-          }
-        },
+          },
+          pointStart: start_year
+        }
       },
-      series: data,
+      series: activeData,
       responsive: {
         rules: [{
           condition: {
@@ -374,12 +423,12 @@ const App = () => {
             <ul className={style.selection_list}>
               {
                 // Create only when data is ready.
-                data && data.map((area, i) => {
+                activeData && activeData.map((area, i) => {
                   return (
-                    <li key={i} style={{marginLeft: ((area.level - 1) * 5) + 'px'}}>
-                      <label style={{display: toggleListItem(searchTerm, area.name)}}>
+                    <li key={i} style={{marginLeft: ((area.level - 1) * 7) + 'px'}}>
+                      <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}}>
                         <span className={style.input_container}>
-                          <input type="checkbox" value={area.name} checked={checked[i]} onChange={() => toggleData(i)} />
+                          <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => toggleData(area)} />
                         </span>
                         <span className={style.label_container}>{area.name}</span>
                       </label>
@@ -402,27 +451,34 @@ const App = () => {
             <div className={style.options_container}>
               <label style={{display: 'none'}}>
                 <span className={style.input_container}>
-                  <input type="checkbox" value={relativeToPopulation} checked={relativeToPopulation} onChange={() => toggleRelativeToPopulation()} />
+                  <input type="checkbox" value={relativeToPopulation} selected={relativeToPopulation} onChange={() => toggleRelativeToPopulation()} />
                 </span>
                 <span className={style.label_container}>Relative to Population</span>
               </label>
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmic('linear')} className={style.selected}>Linear</button>
+                <button onClick={() => toggleLinearLogarithmic('linear')} className={style.linearlogarithmic + ' ' + style.selected}>Linear</button>
               </span>
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmic('logarithmic')}>Log</button>
+                <button onClick={() => toggleLinearLogarithmic('logarithmic')} className={style.linearlogarithmic}>Log</button>
+              </span>
+              <span className={style.button_group}></span>
+              <span className={style.input_container}>
+                <button onClick={() => toggleDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected}>Inflows</button>
+              </span>
+              <span className={style.input_container}>
+                <button onClick={() => toggleDataType('fdi_outflows')} className={style.data_type}>Outflows</button>
               </span>
             </div>
           </div>
           {
-            // Chart
           }
           <div className={style.chart_container + ' ' + style.container}>
-            <div className={style.highchart_container} id="highchart-container"></div>
+            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}>Select at least one country or region from the right</div>
+            <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
             <div className={style.legend_container}>
               {
                 legend && legend.map((legend_item, i) => {
-                  return (<span key={i} style={{color:legend_item.color}}>{legendIcon(legend_item.symbol, legend_item.color)} {legend_item.name}</span>)
+                  return (<span key={i} style={{color:legend_item.color}} onClick={() => toggleData(legend_item)}>{legendIcon(legend_item.symbol, legend_item.color)} {legend_item.name}</span>);
                 })
               }
             </div>
@@ -434,4 +490,3 @@ const App = () => {
 };
 
 export default App;
-

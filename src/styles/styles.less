@@ -75,23 +75,53 @@
               display: inline-block;
               margin-right: 20px;
             }
-            button {
-              background-color: @ungrey;
-              border: 0;
-              color: #fff;
-              font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
-              font-size: 12px;
-              letter-spacing: 0.05em;
-              margin: 0 3px;
-              padding: 5px 7px;
-              text-transform: uppercase;
-              &.selected {
-                background-color: @unblue;
+            .button_group {
+              display: inline-block;
+              margin: 0 5px;
+              height: 20px;
+              vertical-align: middle;
+              border-left: 1px solid #000;
+            }
+            .input_container {
+              button {
+                background-color: @ungrey;
+                border: 0;
+                color: #fff;
+                cursor: pointer;
+                font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
+                font-size: 12px;
+                letter-spacing: 0.05em;
+                margin: 0 3px;
+                padding: 5px 7px;
+                text-transform: uppercase;
+                &:hover {
+                  transform: scale(1.05);
+                }
+                &.selected {
+                  background-color: @unblue;
+                  &:hover {
+                    transform: scale(1.00);
+                  }
+                }
+                &.linearlogarithmic {
+                  display: inline;
+                }
+                &.data_type {
+                  display: inline;
+                }
               }
             }
           }
         }
         .chart_container {
+          .info {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            min-height: 460px;
+            text-align: center;
+            vertical-align: middle;
+          }
           .highchart_container {
             font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
             width: 100%;
@@ -101,18 +131,19 @@
               }
               .tooltip_label {
                 font-size: 14px;
-                // color: @ungrey;
                 font-weight: 700;
               }
               .tooltip_value {
                 font-size: 14px;
-                // color: #000;
                 font-weight: 400;
               }
             }
           }
           .legend_container {
+            height: 20px;
+            overflow: scroll;
             span {
+              cursor: pointer;
               display: inline-block;
               margin-right: 9px;
               svg {
