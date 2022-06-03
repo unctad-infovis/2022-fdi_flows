@@ -474,7 +474,7 @@ const App = () => {
           {
           }
           <div className={style.chart_container + ' ' + style.container}>
-            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}>Select at least one country or region from the right</div>
+            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}>Select at least one country or region from the left</div>
             <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
             <div className={style.legend_container}>
               {
