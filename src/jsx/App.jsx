@@ -12,6 +12,9 @@ import formatNr from './helpers/formatNr.js';
 import roundNr from './helpers/roundNr.js';
 import legendIcon from './helpers/LegendIcon.jsx';
 
+// Load resources.
+import unctad_logo from './../../media/img/unctad_logo.svg';
+
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
 (function (H) {
   H.addEvent(H.Axis, 'afterInit', function () {
@@ -59,12 +62,18 @@ const App = () => {
   const [visible, setVisible] = useState({'World': true});
   const [legend, setLegend] = useState(false);
   // Not used.
-  const [relativeToPopulation, setRelativeToPopulation] = useState(false);
+  // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
-    d3.json('./data/data2020.json').then((json_data) => {
-      setData(cleanData(json_data));
-    });
+    const data_file = (window.location.href.includes('unctad.org')) ? 'https://uat.unctad.org/sites/default/files/data-file/data_1.json' : './data/data2020.json'
+    try {
+      d3.json(data_file).then((json_data) => {
+        setData(cleanData(json_data));
+      });
+    }
+    catch (error) {
+      console.error(error);
+    }
   }, []);
 
   // This is to clean data.
@@ -104,7 +113,7 @@ const App = () => {
     if (activeData !== undefined && activeData !== false) {
       if (!chart) {
         createChart();
-        toggleLegend();
+        toggleLegendItems();
       }
     }
   }, [activeData]);
@@ -120,13 +129,13 @@ const App = () => {
         data.visible = (selected[data.name] === true) ? true : false;
         chart.addSeries(data, false);
       });
-      toggleLegend();
+      toggleLegendItems();
       chart.redraw();
     }
   }, [dataType]);
 
   // This is to toggle checkboxes and to toggle data.
-  const toggleData = (area) => {
+  const chooseActiveData = (area) => {
     chart.series.map((serie, i) => {
       if (serie.name === area.name) {
         chart.series[i].setVisible(!selected[area.name], false);
@@ -134,11 +143,21 @@ const App = () => {
     });
     selected[area.name] = !selected[area.name];
     setSelected(selected);
-    toggleLegend();
+    toggleLegendItems();
     chart.redraw();
   };
 
-  const toggleLegend = () => {
+  // This is to change data type.
+  const changeDataType = (type) => {
+    let elements = document.getElementsByClassName(style.data_type);
+    for (var i = 0, all = elements.length; i < all; i++) { 
+      elements[i].classList.remove(style.selected);
+    }
+    event.target.classList.add(style.selected);
+    setDataType(type);
+  }
+
+  const toggleLegendItems = () => {
     setLegend(chart.series.filter((serie) => {
       if (serie.visible === true) {
         return {
@@ -148,6 +167,18 @@ const App = () => {
         }
       }
     }));
+  }
+
+  // This is to toggle linear or logarithmic scale.
+  const toggleLinearLogarithmicScale = (type) => {
+    chart.yAxis[0].update({
+      type: type
+    });
+    let elements = document.getElementsByClassName(style.linearlogarithmic);
+    for (var i = 0, all = elements.length; i < all; i++) { 
+      elements[i].classList.remove(style.selected);
+    }
+    event.target.classList.add(style.selected);
   }
 
   const search = () => {
@@ -169,45 +200,19 @@ const App = () => {
     setSearchTerm(event.target.value)
   }
 
-  // This is to toggle linear or logarithmic scale.
-  const toggleLinearLogarithmic = (type) => {
-    chart.yAxis[0].update({
-      type: type
-    });
-    let elements = document.getElementsByClassName(style.linearlogarithmic);
-    for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove(style.selected);
-    }
-    event.target.classList.add(style.selected);
-  }
-
-  // This is to toggle linear or logarithmic scale.
-  const toggleDataType = (type) => {
-    let elements = document.getElementsByClassName(style.data_type);
-    for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove(style.selected);
-    }
-    event.target.classList.add(style.selected);
-    setDataType(type);
-  }
-
   // Not used.
-  const toggleRelativeToPopulation = () => {
-    setRelativeToPopulation(!relativeToPopulation);
-  }
+  // const toggleRelativeToPopulation = () => {
+  //   setRelativeToPopulation(!relativeToPopulation);
+  // }
 
   // This is to draw the legend icon.
   const createChart = () => {
     chart = Highcharts.chart('highchart-container', {
       chart: {
         height: 440,
+        marginTop: [40],
         resetZoomButton: {
           theme: {
-            style: {
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              fontWeight: 400,
-            },
             fill: '#fff',
             r: 0,
             states: {
@@ -219,13 +224,17 @@ const App = () => {
                 }
               }
             },
-            stroke: '#7c7067'
+            stroke: '#7c7067',
+            style: {
+              fontFamily: 'Roboto',
+              fontSize: 13,
+              fontWeight: 400,
+            }
           },
         },
         style: {
           color: '#7c7067',
           fontFamily: 'Roboto',
-          fontSize: 16,
           fontWeight: 400
         },
         zoomType: 'x',
@@ -238,88 +247,6 @@ const App = () => {
       },
       title: {
         text: null
-      },
-      yAxis: {
-        allowDecimals: true,
-        custom: {
-          allowNegativeLog: true
-        },
-        gridLineColor: 'rgba(124, 112, 103, 0.2)',
-        gridLineWidth: 1,
-        gridLineDashStyle: 'shortdot',
-        labels: {
-          style: {
-            color: '#7c7067',
-            fontFamily: 'Roboto',
-            fontSize: 12,
-            fontWeight: 400,
-          }
-        },
-        lineColor: 'transparent',
-        lineWidth: 0,
-        opposite: false,
-        plotLines: [{
-          color: 'rgba(124, 112, 103, 0.6)',
-          value: 0,
-          width: 1
-        }],
-        showLastLabel: true,
-        showFirstLabel: true,
-        type: 'linear',
-        title: {
-          align: 'high',
-          enabled: true,
-          reserveSpace: false,
-          rotation: 0,
-          style: {
-            color: '#7c7067',
-            fontFamily: 'Roboto',
-            fontSize: 10,
-            fontWeight: 400,
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase'
-          },
-          text: 'Millions of dollars',
-          verticalAlign:'top',
-          x: 170,
-          y: -2,
-        },
-      },
-      xAxis: {
-        allowDecimals: false,
-        labels: {
-          rotation: 0,
-          style: {
-            color: '#7c7067',
-            fontFamily: 'Roboto',
-            fontSize: 12,
-            fontWeight: 400
-          },
-          y: 20
-        },
-        lineColor: 'transparent',
-        lineWidth: 0,
-        opposite: false,
-        plotLines: null,
-        showFirstLabel: true,
-        crosshair: {
-          color: 'rgba(124, 112, 103, 0.2)',
-          width: 1
-        },
-        tickWidth: 0,
-        title: {
-          enabled: true,
-          offset: 50,
-          style: {
-            color: '#7c7067',
-            fontFamily: 'Roboto',
-            fontSize: 10,
-            fontWeight: 400,
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase'
-          },
-          text: 'Year',
-        },
       },
       tooltip: {
         backgroundColor: '#fff',
@@ -339,7 +266,7 @@ const App = () => {
         style: {
           color: '#7c7067',
           fontFamily: 'Roboto',
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: 400,
         },
         useHTML: true,
@@ -378,7 +305,6 @@ const App = () => {
           pointStart: start_year
         }
       },
-      series: activeData,
       responsive: {
         rules: [{
           condition: {
@@ -386,12 +312,91 @@ const App = () => {
           },
           chartOptions: {
             legend: {
-              layout: 'horizontal',
               align: 'center',
+              layout: 'horizontal',
               verticalAlign: 'bottom'
             }
           }
         }]
+      },
+      series: activeData,
+      xAxis: {
+        allowDecimals: false,
+        crosshair: {
+          color: 'rgba(124, 112, 103, 0.2)',
+          width: 1
+        },
+        labels: {
+          rotation: 0,
+          style: {
+            color: '#7c7067',
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            fontWeight: 400
+          },
+          y: 20
+        },
+        lineColor: 'transparent',
+        lineWidth: 0,
+        opposite: false,
+        plotLines: null,
+        showFirstLabel: true,
+        tickWidth: 0,
+        title: {
+          enabled: true,
+          offset: 30,
+          style: {
+            color: '#7c7067',
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            fontWeight: 400
+          },
+          text: 'Year'
+        }
+      },
+      yAxis: {
+        allowDecimals: true,
+        custom: {
+          allowNegativeLog: true
+        },
+        gridLineColor: 'rgba(124, 112, 103, 0.2)',
+        gridLineWidth: 1,
+        gridLineDashStyle: 'shortdot',
+        labels: {
+          style: {
+            color: '#7c7067',
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            fontWeight: 400,
+          }
+        },
+        lineColor: 'transparent',
+        lineWidth: 0,
+        opposite: false,
+        plotLines: [{
+          color: 'rgba(124, 112, 103, 0.6)',
+          value: 0,
+          width: 1
+        }],
+        showLastLabel: true,
+        showFirstLabel: true,
+        type: 'linear',
+        title: {
+          align: 'high',
+          enabled: true,
+          reserveSpace: false,
+          rotation: 0,
+          style: {
+            color: '#7c7067',
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            fontWeight: 400
+          },
+          text: 'Millions of dollars',
+          verticalAlign:'top',
+          x: 94,
+          y: -25
+        },
       }
     });
   };
@@ -429,7 +434,7 @@ const App = () => {
                     <li key={i} style={{marginLeft: ((area.level - 1) * 7) + 'px'}}>
                       <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}}>
                         <span className={style.input_container}>
-                          <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => toggleData(area)} />
+                          <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => chooseActiveData(area)} />
                         </span>
                         <span className={style.label_container}>{area.name}</span>
                       </label>
@@ -450,36 +455,38 @@ const App = () => {
           <div className={style.title_container}>
             <h3>By region and economy, 1990–2021</h3>
             <div className={style.options_container}>
-              <label style={{display: 'none'}}>
-                <span className={style.input_container}>
-                  <input type="checkbox" value={relativeToPopulation} selected={relativeToPopulation} onChange={() => toggleRelativeToPopulation()} />
-                </span>
-                <span className={style.label_container}>Relative to Population</span>
-              </label>
+              {
+                // <label style={{display: 'none'}}>
+                //   <span className={style.input_container}>
+                //     <input type="checkbox" value={relativeToPopulation} selected={relativeToPopulation} onChange={() => toggleRelativeToPopulation()} />
+                //   </span>
+                //   <span className={style.label_container}>Relative to Population</span>
+                // </label>
+              }
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmic('linear')} className={style.linearlogarithmic + ' ' + style.selected}>Linear</button>
+                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={style.linearlogarithmic + ' ' + style.selected}>Linear</button>
               </span>
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmic('logarithmic')} className={style.linearlogarithmic}>Log</button>
+                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={style.linearlogarithmic}>Log</button>
               </span>
               <span className={style.button_group}></span>
               <span className={style.input_container}>
-                <button onClick={() => toggleDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected}>Inflows</button>
+                <button onClick={() => changeDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected}>Inflows</button>
               </span>
               <span className={style.input_container}>
-                <button onClick={() => toggleDataType('fdi_outflows')} className={style.data_type}>Outflows</button>
+                <button onClick={() => changeDataType('fdi_outflows')} className={style.data_type}>Outflows</button>
               </span>
             </div>
           </div>
-          {
-          }
           <div className={style.chart_container + ' ' + style.container}>
+            <img src={unctad_logo} alt="UNCTAD logo" className={style.unctad_logo} />
             <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}>Select at least one country or region from the left</div>
             <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
+            <div className={style.source_container}><em>Source:</em> World Investment Report 2022 UNCTAD</div>
             <div className={style.legend_container}>
               {
                 legend && legend.map((legend_item, i) => {
-                  return (<span key={i} style={{color:legend_item.color}} onClick={() => toggleData(legend_item)}>{legendIcon(legend_item.symbol, legend_item.color)} {legend_item.name}</span>);
+                  return (<span key={i} style={{color:legend_item.color}} onClick={() => chooseActiveData(legend_item)}>{legendIcon(legend_item.symbol, legend_item.color)} {legend_item.name}</span>);
                 })
               }
             </div>

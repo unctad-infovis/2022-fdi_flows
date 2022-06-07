@@ -2,6 +2,7 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const GoogleFontsPlugin = require('@beyonk/google-fonts-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
   output: {
@@ -51,7 +52,7 @@ module.exports = {
       {
         test: /\.css$/,
         include: /node_modules\//,
-        use: ['style-loader', 'css-loader']
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.(png|jp(e*)g|svg|gif)$/,
@@ -60,10 +61,15 @@ module.exports = {
             loader: 'file-loader',
             options: {
               name: 'img/[hash]-[name].[ext]'
-            },
-          },
-        ],
+            }
+          }
+        ]
       }
+    ]
+  },
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin()
     ]
   },
   plugins: [
