@@ -45,8 +45,6 @@ import legendIcon from './helpers/LegendIcon.jsx';
   });
 }(Highcharts));
 
-
-
 // Define chart container.
 let chart;
 const start_year = 1990;
@@ -266,8 +264,7 @@ const App = () => {
         borderWidth: 1,
         crosshairs: true,
         formatter: function () {
-          const values = this.points.map((point, i) => [point.series.name, point.y, point.color]);
-          values.sort((a, b) => (a[1] < b[1] ? 1 : -1));
+          const values = this.points.map((point, i) => [point.series.name, point.y, point.color]).sort((a, b) => (a[1] < b[1] ? 1 : -1));
           const rows = [];
           rows.push(values.map((point, i) => '<div style="color: ' + point[2] + '"><span class="' + style.tooltip_label + '">' + point[0] + ':</span> <span class="' + style.tooltip_value + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>').join(''));
           return '<div class="' + style.tooltip_container + '"><h3 class="' + style.tooltip_header + '">Year ' + this.x + '</h3>' + rows;
