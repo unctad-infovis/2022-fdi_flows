@@ -6,14 +6,15 @@ import * as d3 from 'd3';
 
 // https://www.highcharts.com/
 import Highcharts from 'highcharts';
+import highchartsAccessibility from 'highcharts/modules/accessibility';
+highchartsAccessibility(Highcharts);
+import highchartsExporting from 'highcharts/modules/exporting';
+highchartsExporting(Highcharts);
 
 // Load helpers.
 import formatNr from './helpers/formatNr.js';
 import roundNr from './helpers/roundNr.js';
 import legendIcon from './helpers/LegendIcon.jsx';
-
-// Load resources.
-import unctad_logo from './../../media/img/unctad_logo.svg';
 
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
 (function (H) {
@@ -44,6 +45,8 @@ import unctad_logo from './../../media/img/unctad_logo.svg';
   });
 }(Highcharts));
 
+
+
 // Define chart container.
 let chart;
 const start_year = 1990;
@@ -65,7 +68,7 @@ const App = () => {
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? 'https://uat.unctad.org/sites/default/files/data-file/data_1.json' : './data/data2020.json'
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './data/data2021.json';
     try {
       d3.json(data_file).then((json_data) => {
         setData(cleanData(json_data));
@@ -220,7 +223,7 @@ const App = () => {
                 fill: '#0077b8',
                 stroke: 'transparent',
                 style: {
-                  color: '#fff',
+                  color: '#fff'
                 }
               }
             },
@@ -228,22 +231,30 @@ const App = () => {
             style: {
               fontFamily: 'Roboto',
               fontSize: 13,
-              fontWeight: 400,
+              fontWeight: 400
             }
-          },
+          }
         },
         style: {
           color: '#7c7067',
           fontFamily: 'Roboto',
           fontWeight: 400
         },
-        zoomType: 'x',
+        zoomType: 'x'
       },
+      colors: ['#0077b8', '#ab1d37', '#005392', '#eb0045', '#9a58af', '#27833a', '#733d96', '#7c7067'],
       credits: {
-        enabled: false,
+        enabled: false
+      },
+      exporting: {
+        chartOptions: {
+          legend: {
+            enabled: true
+          }
+        }
       },
       legend: {
-        enabled: false,
+        enabled: false
       },
       title: {
         text: null
@@ -252,8 +263,8 @@ const App = () => {
         backgroundColor: '#fff',
         borderColor: '#ccc',
         borderRadius: 0,
-        crosshairs: true,
         borderWidth: 1,
+        crosshairs: true,
         formatter: function () {
           const values = this.points.map((point, i) => [point.series.name, point.y, point.color]);
           values.sort((a, b) => (a[1] < b[1] ? 1 : -1));
@@ -267,15 +278,9 @@ const App = () => {
           color: '#7c7067',
           fontFamily: 'Roboto',
           fontSize: 13,
-          fontWeight: 400,
+          fontWeight: 400
         },
-        useHTML: true,
-      },
-      legend: {
-        align: 'center',
-        enabled: false,
-        layout: 'horizontal',
-        verticalAlign: 'middle'
+        useHTML: true
       },
       plotOptions: {
         line: {
@@ -321,6 +326,9 @@ const App = () => {
       },
       series: activeData,
       xAxis: {
+        accessibility: {
+          description: 'Year from 1990 to 2021'
+        },
         allowDecimals: false,
         crosshair: {
           color: 'rgba(124, 112, 103, 0.2)',
@@ -355,6 +363,9 @@ const App = () => {
         }
       },
       yAxis: {
+        accessibility: {
+          description: 'Millions of dollars'
+        },
         allowDecimals: true,
         custom: {
           allowNegativeLog: true
@@ -367,7 +378,7 @@ const App = () => {
             color: '#7c7067',
             fontFamily: 'Roboto',
             fontSize: 13,
-            fontWeight: 400,
+            fontWeight: 400
           }
         },
         lineColor: 'transparent',
@@ -418,7 +429,7 @@ const App = () => {
             // Name
           }
           <div className={style.name_container}>
-            <h3>FDI Inflows Data Explorer</h3>
+            <h3>FDI Data Explorer</h3>
           </div>
           {
             // Country selection
@@ -432,7 +443,7 @@ const App = () => {
                 activeData && activeData.map((area, i) => {
                   return (
                     <li key={i} style={{marginLeft: ((area.level - 1) * 7) + 'px'}}>
-                      <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}}>
+                      <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}} title={'Toggle ' + area.name + ' in the chart'} aria-label={'Toggle ' + area.name + ' in the chart'}>
                         <span className={style.input_container}>
                           <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => chooseActiveData(area)} />
                         </span>
@@ -464,35 +475,36 @@ const App = () => {
                 // </label>
               }
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={style.linearlogarithmic + ' ' + style.selected}>Linear</button>
+                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={style.linearlogarithmic + ' ' + style.selected} title="Use linear scale on y-axis" aria-label="Use linear scale on y-axis">Linear</button>
               </span>
               <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={style.linearlogarithmic}>Log</button>
+                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={style.linearlogarithmic} title="Use logarithmic scale on y-axis"  aria-label="Use logarithmic scale on y-axis">Log</button>
               </span>
               <span className={style.button_group}></span>
               <span className={style.input_container}>
-                <button onClick={() => changeDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected}>Inflows</button>
+                <button onClick={() => changeDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected} title="Select FDI inflows dataset" aria-label="Select FDI inflows dataset">Inflows</button>
               </span>
               <span className={style.input_container}>
-                <button onClick={() => changeDataType('fdi_outflows')} className={style.data_type}>Outflows</button>
+                <button onClick={() => changeDataType('fdi_outflows')} className={style.data_type} title="Select FDI outflows dataset" aria-label="Select FDI outflows dataset">Outflows</button>
               </span>
             </div>
           </div>
           <div className={style.chart_container + ' ' + style.container}>
-            <img src={unctad_logo} alt="UNCTAD logo" className={style.unctad_logo} />
-            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}>Select at least one country or region from the left</div>
+            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={style.unctad_logo} />
+            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}><h3>Select at least one country or region from the left</h3></div>
             <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
-            <div className={style.source_container}><em>Source:</em> World Investment Report 2022 UNCTAD</div>
             <div className={style.legend_container}>
               {
                 legend && legend.map((legend_item, i) => {
-                  return (<span key={i} style={{color:legend_item.color}} onClick={() => chooseActiveData(legend_item)}>{legendIcon(legend_item.symbol, legend_item.color)} {legend_item.name}</span>);
+                  return (<span key={i} style={{color:legend_item.color}} onClick={() => chooseActiveData(legend_item)} title={'Remove ' + legend_item.name + ' from the chart'} aria-label={'Remove ' + legend_item.name + ' from the chart'}>{legendIcon(legend_item.symbol, legend_item.color)}{legend_item.name}</span>);
                 })
               }
             </div>
+            <div className={style.source_container}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">World Investment Report 2022 UNCTAD</a></div>
           </div>
         </div>
       </div>
+      <noscript>Your browser does not support JavaScript!</noscript>
     </div>
   );
 };

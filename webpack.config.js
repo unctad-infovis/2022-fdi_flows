@@ -93,6 +93,9 @@ module.exports = {
       filename: 'css/styles.min.css'
     }),
     new CopyPlugin([
+      { from: 'public/css/styles.min.css', to: '../drupal/2022-fdi_flows.min.css' },
+      { from: 'public/js/script.min.js', to: '../drupal/2022-fdi_flows.min.js' },
+      { from: 'public/data/data2021.json', to: '../drupal/2022-fdi_flows.json' },
       { from: 'media/img/', to: 'img' },
       { from: 'media/data/', to: 'data' },
       { from: 'favicon.png', to: '' }
