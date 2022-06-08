@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import style from './../styles/styles.less';
 
 // https://d3js.org/
@@ -424,17 +424,8 @@ const App = () => {
     });
   };
 
-  // shouldComponentUpdate(nextProps, nextState) {}
-  // static getDerivedStateFromProps(props, state) {}
-  // getSnapshotBeforeUpdate(prevProps, prevState) {}
-  // static getDerivedStateFromError(error) {}
-  // componentDidCatch() {}
-
   return (
     <div className={style.app}>
-      {
-      //<p>Global foreign direct investment (FDI) flows in 2021 were $1.58 trillion, up 64 per cent from the exceptionally low level in 2020. See from the interactive chart below how the FDI inflows and outflows have developed in a country or region of interest.</p>
-      }
       <div className={style.layout}>
         {
           // Left
