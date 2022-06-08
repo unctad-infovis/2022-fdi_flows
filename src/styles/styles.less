@@ -7,7 +7,8 @@
   font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
   .layout {
     display: flex;
-    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
     .container {
       h3 {
         display: inline-block;
@@ -52,7 +53,8 @@
             height: 408px;
             list-style-type: none;
             margin: 0;
-            overflow: scroll;
+            overflow-x: hidden;
+            overflow-y: scroll;
             padding: 0;
             label {
               cursor: pointer;
@@ -121,8 +123,9 @@
           }
         }
         .chart_container {
-          position: relative;
           min-height: 502px;
+          overflow: hidden;
+          position: relative;
           .info {
             align-items: center;
             display: flex;
