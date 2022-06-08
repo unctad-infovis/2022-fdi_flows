@@ -146,6 +146,11 @@ const App = () => {
     setSelected(selected);
     toggleLegendItems();
     chart.redraw();
+
+    if (typeof ga !== 'undefined' && selected[area.name]) {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name); 
+    }
   };
 
   // This is to change data type.
@@ -156,6 +161,11 @@ const App = () => {
     }
     event.target.classList.add(style.selected);
     setDataType(type);
+
+    if (typeof ga !== 'undefined') {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type); 
+    }
   }
 
   const toggleLegendItems = () => {
@@ -180,6 +190,11 @@ const App = () => {
       elements[i].classList.remove(style.selected);
     }
     event.target.classList.add(style.selected);
+
+    if (typeof ga !== 'undefined') {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type); 
+    }
   }
 
   const search = () => {
