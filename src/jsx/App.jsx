@@ -506,7 +506,7 @@ const App = () => {
                 })
               }
             </div>
-            <div className={style.source_container}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">World Investment Report 2022 UNCTAD</a></div>
+            <div className={style.source_container}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">UNCTAD World Investment Report 2022</a></div>
           </div>
         </div>
       </div>
