@@ -66,7 +66,7 @@ const App = () => {
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './data/data2020.json';
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './data/data2021.json';
     try {
       d3.json(data_file).then((json_data) => {
         setData(cleanData(json_data));
