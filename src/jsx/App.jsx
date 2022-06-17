@@ -45,6 +45,13 @@ import legendIcon from './helpers/LegendIcon.jsx';
   });
 }(Highcharts));
 
+Highcharts.setOptions({
+  lang: {
+    decimalPoint: '.',
+    thousandsSep: ','
+  }
+});
+
 // Define chart container.
 let chart;
 const start_year = 1990;
@@ -496,9 +503,9 @@ const App = () => {
             </div>
           </div>
           <div className={style.chart_container + ' ' + style.container}>
-            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={style.unctad_logo} />
             <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}><h3>Select at least one country or region from the left</h3></div>
             <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
+            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={style.unctad_logo} />
             <div className={style.legend_container}>
               {
                 legend && legend.map((legend_item, i) => {
