@@ -156,7 +156,7 @@ const App = () => {
 
     if (typeof ga !== 'undefined' && selected[area.name]) {
       // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name); 
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name);
     }
   };
 
@@ -171,7 +171,7 @@ const App = () => {
 
     if (typeof ga !== 'undefined') {
       // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type); 
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type);
     }
   }
 
@@ -200,7 +200,7 @@ const App = () => {
 
     if (typeof ga !== 'undefined') {
       // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type); 
+      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type);
     }
   }
 
