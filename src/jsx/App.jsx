@@ -96,10 +96,10 @@ const App = () => {
             current_level--;
             parents.pop();
           }
-          parents.push(area[['Region/economy']])
+          parents.push(area[['Region/economy']]);
         }
         else if (area.level >= current_level && area.type !== 'country') {
-          parents.push(area[['Region/economy']])
+          parents.push(area[['Region/economy']]);
         }
         current_level = area.level;
         return {
@@ -220,7 +220,7 @@ const App = () => {
       }
     });
     setVisible(visible);
-    setSearchTerm(event.target.value)
+    setSearchTerm(event.target.value);
   }
 
   // Not used.
