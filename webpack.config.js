@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const GoogleFontsPlugin = require('@beyonk/google-fonts-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 module.exports = {
   output: {
@@ -73,6 +74,7 @@ module.exports = {
     ]
   },
   plugins: [
+    new MinifyPlugin({}, {}),
     new GoogleFontsPlugin({
       fonts: [{
         family: 'Roboto Serif',
