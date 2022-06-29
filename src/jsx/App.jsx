@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import style from './../styles/styles.less';
+import './../styles/styles.less';
 
 // https://www.highcharts.com/
 import Highcharts from 'highcharts';
@@ -70,7 +70,7 @@ const App = () => {
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './data/data2021.json';
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './media/data/data2021.json';
     try {
       fetch(data_file)
         .then(response => response.text())
@@ -159,11 +159,11 @@ const App = () => {
 
   // This is to change data type.
   const changeDataType = (type) => {
-    let elements = document.getElementsByClassName(style.data_type);
+    let elements = document.getElementsByClassName('data_type');
     for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove(style.selected);
+      elements[i].classList.remove('selected');
     }
-    event.target.classList.add(style.selected);
+    event.target.classList.add('selected');
     setDataType(type);
 
     if (typeof ga !== 'undefined') {
@@ -189,11 +189,11 @@ const App = () => {
     chart.yAxis[0].update({
       type: type
     });
-    let elements = document.getElementsByClassName(style.linearlogarithmic);
+    let elements = document.getElementsByClassName('linearlogarithmic');
     for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove(style.selected);
+      elements[i].classList.remove('selected');
     }
-    event.target.classList.add(style.selected);
+    event.target.classList.add('selected');
 
     if (typeof ga !== 'undefined') {
       // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
@@ -285,8 +285,8 @@ const App = () => {
         formatter: function () {
           const values = this.points.map((point, i) => [point.series.name, point.y, point.color]).sort((a, b) => (a[1] < b[1] ? 1 : -1));
           const rows = [];
-          rows.push(values.map((point, i) => '<div style="color: ' + point[2] + '"><span class="' + style.tooltip_label + '">' + point[0] + ':</span> <span class="' + style.tooltip_value + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>').join(''));
-          return '<div class="' + style.tooltip_container + '"><h3 class="' + style.tooltip_header + '">Year ' + this.x + '</h3>' + rows;
+          rows.push(values.map((point, i) => '<div style="color: ' + point[2] + '"><span class="' + 'tooltip_label' + '">' + point[0] + ':</span> <span class="' + 'tooltip_value' + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>').join(''));
+          return '<div class="' + 'tooltip_container' + '"><h3 class="' + 'tooltip_header' + '">Year ' + this.x + '</h3>' + rows;
         },
         shadow: false,
         shared: true,
@@ -429,35 +429,35 @@ const App = () => {
   };
 
   return (
-    <div className={style.app}>
-      <div className={style.layout}>
+    <div className={'app'}>
+      <div className={'layout'}>
         {
           // Left
         }
-        <div className={style.left + ' ' + style.container}>
+        <div className={'left' + ' ' + 'container'}>
           {
             // Name
           }
-          <div className={style.name_container}>
+          <div className={'name_container'}>
             <h3>FDI Data Explorer</h3>
           </div>
           {
             // Country selection
           }
-          <div className={style.country_selection_container}>
+          <div className={'country_selection_container'}>
             <h4>Select a country or region</h4>
-            <div className={style.search_container}><input type="text" placeholder="Type to search" onChange={() => search()} /></div>
-            <ul className={style.selection_list}>
+            <div className={'search_container'}><input type="text" placeholder="Type to search" onChange={() => search()} /></div>
+            <ul className={'selection_list'}>
               {
                 // Create only when data is ready.
                 activeData && activeData.map((area, i) => {
                   return (
                     <li key={i} style={{marginLeft: ((area.level - 1) * 7) + 'px'}}>
                       <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}} title={'Toggle ' + area.name + ' in the chart'} aria-label={'Toggle ' + area.name + ' in the chart'}>
-                        <span className={style.input_container}>
+                        <span className={'input_container'}>
                           <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => chooseActiveData(area)} />
                         </span>
-                        <span className={style.label_container}>{area.name}</span>
+                        <span className={'label_container'}>{area.name}</span>
                       </label>
                     </li>
                   );
@@ -469,48 +469,48 @@ const App = () => {
         {
           // Right
         }
-        <div className={style.right + ' ' + style.container}>
+        <div className={'right' + ' ' + 'container'}>
           {
             // Title
           }
-          <div className={style.title_container}>
+          <div className={'title_container'}>
             <h3>By region and economy, 1990–2021</h3>
-            <div className={style.options_container}>
+            <div className={'options_container'}>
               {
                 // <label style={{display: 'none'}}>
-                //   <span className={style.input_container}>
+                //   <span className={'input_container'}>
                 //     <input type="checkbox" value={relativeToPopulation} selected={relativeToPopulation} onChange={() => toggleRelativeToPopulation()} />
                 //   </span>
-                //   <span className={style.label_container}>Relative to Population</span>
+                //   <span className={'label_container'}>Relative to Population</span>
                 // </label>
               }
-              <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={style.linearlogarithmic + ' ' + style.selected} title="Use linear scale on y-axis" aria-label="Use linear scale on y-axis">Linear</button>
+              <span className={'input_container'}>
+                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={'linearlogarithmic' + ' ' + 'selected'} title="Use linear scale on y-axis" aria-label="Use linear scale on y-axis">Linear</button>
               </span>
-              <span className={style.input_container}>
-                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={style.linearlogarithmic} title="Use logarithmic scale on y-axis"  aria-label="Use logarithmic scale on y-axis">Log</button>
+              <span className={'input_container'}>
+                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={'linearlogarithmic'} title="Use logarithmic scale on y-axis"  aria-label="Use logarithmic scale on y-axis">Log</button>
               </span>
-              <span className={style.button_group}></span>
-              <span className={style.input_container}>
-                <button onClick={() => changeDataType('fdi_inflows')} className={style.data_type + ' ' + style.selected} title="Select FDI inflows dataset" aria-label="Select FDI inflows dataset">Inflows</button>
+              <span className={'button_group'}></span>
+              <span className={'input_container'}>
+                <button onClick={() => changeDataType('fdi_inflows')} className={'data_type' + ' ' + 'selected'} title="Select FDI inflows dataset" aria-label="Select FDI inflows dataset">Inflows</button>
               </span>
-              <span className={style.input_container}>
-                <button onClick={() => changeDataType('fdi_outflows')} className={style.data_type} title="Select FDI outflows dataset" aria-label="Select FDI outflows dataset">Outflows</button>
+              <span className={'input_container'}>
+                <button onClick={() => changeDataType('fdi_outflows')} className={'data_type'} title="Select FDI outflows dataset" aria-label="Select FDI outflows dataset">Outflows</button>
               </span>
             </div>
           </div>
-          <div className={style.chart_container + ' ' + style.container}>
-            <div className={style.info} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}><h3>Select at least one country or region from the left</h3></div>
-            <div className={style.highchart_container} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
-            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={style.unctad_logo} />
-            <div className={style.legend_container}>
+          <div className={'chart_container' + ' ' + 'container'}>
+            <div className={'info'} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}><h3>Select at least one country or region from the left</h3></div>
+            <div className={'highchart_container'} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
+            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={'unctad_logo'} />
+            <div className={'legend_container'}>
               {
                 legend && legend.map((legend_item, i) => {
                   return (<span key={i} style={{color:legend_item.color}} onClick={() => chooseActiveData(legend_item)} title={'Remove ' + legend_item.name + ' from the chart'} aria-label={'Remove ' + legend_item.name + ' from the chart'}>{legendIcon(legend_item.symbol, legend_item.color)}{legend_item.name}</span>);
                 })
               }
             </div>
-            <div className={style.source_container}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">UNCTAD World Investment Report 2022</a></div>
+            <div className={'source_container'}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">UNCTAD World Investment Report 2022</a></div>
           </div>
         </div>
       </div>
