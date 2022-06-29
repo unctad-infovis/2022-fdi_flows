@@ -70,7 +70,7 @@ const App = () => {
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './media/data/data2021.json';
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data2021.json';
     try {
       fetch(data_file)
         .then(response => response.text())

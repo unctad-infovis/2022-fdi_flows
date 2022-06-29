@@ -23,8 +23,9 @@ module.exports = merge(common, {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: 'media/img/', to: '../public/img', noErrorOnMissing: true, globOptions: { ignore: ['**/.DS_Store'] }},
-        { from: 'media/data/data2021.json', to: '../public/' + name + '.json', noErrorOnMissing: true},
+        { from: 'assets/img/', to: '../public/assets/img', noErrorOnMissing: true},
+        { from: 'assets/data/data.json', to: '../public/assets/data/' + name + '.json', noErrorOnMissing: true},
+        { from: 'src/font/', to: '../public/font', noErrorOnMissing: true},
         { from: './favicon.png', to: '../public', noErrorOnMissing: true}
       ]
     })
