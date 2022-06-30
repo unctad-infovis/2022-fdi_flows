@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import './../styles/styles.less';
+import '../styles/styles.less';
 
 // https://www.highcharts.com/
 import Highcharts from 'highcharts';
 import highchartsAccessibility from 'highcharts/modules/accessibility';
-highchartsAccessibility(Highcharts);
 import highchartsExporting from 'highcharts/modules/exporting';
-highchartsExporting(Highcharts);
 
 // Load helpers.
-import formatNr from './helpers/formatNr.js';
-import roundNr from './helpers/roundNr.js';
+import formatNr from './helpers/FormatNr.js';
+import roundNr from './helpers/RoundNr.js';
 import legendIcon from './helpers/LegendIcon.jsx';
 
+highchartsAccessibility(Highcharts);
+highchartsExporting(Highcharts);
+
+const ga = window.ga || undefined;
+
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
-(function (H) {
-  H.addEvent(H.Axis, 'afterInit', function () {
-    const logarithmic = this.logarithmic;
+// eslint-disable-next-line no-unused-expressions
+((H) => {
+  H.addEvent(H.Axis, 'afterInit', () => {
+    const { logarithmic } = this;
     if (logarithmic && this.options.custom.allowNegativeLog) {
       // Avoid errors on negative numbers on a log axis
       this.positiveValuesOnly = false;
@@ -32,7 +36,7 @@ import legendIcon from './helpers/LegendIcon.jsx';
       };
       logarithmic.lin2log = num => {
         const isNegative = num < 0;
-        let result = Math.pow(10, Math.abs(num));
+        let result = 10 ** Math.abs(num);
         if (result < 10) {
           result = (10 * (result - 1)) / (10 - 1);
         }
@@ -40,7 +44,7 @@ import legendIcon from './helpers/LegendIcon.jsx';
       };
     }
   });
-}(Highcharts));
+}, [Highcharts]);
 
 Highcharts.setOptions({
   lang: {
@@ -54,48 +58,33 @@ let chart;
 const start_year = 1990;
 const end_year = 2021;
 const years = (Array(end_year - start_year + 1).fill().map((_, idx) => start_year + idx));
-const enabled = []
 
-const App = () => {
+function App() {
   // Data states.
   const [data, setData] = useState(false);
   const [activeData, setActiveData] = useState(false);
   const [dataType, setDataType] = useState('fdi_inflows');
   // Data selection states.
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selected, setSelected] = useState({'World': true});
-  const [visible, setVisible] = useState({'World': true});
+  const [selected, setSelected] = useState({ World: true });
+  const [visible, setVisible] = useState({ World: true });
   const [legend, setLegend] = useState(false);
   // Not used.
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
-  useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data2021.json';
-    try {
-      fetch(data_file)
-        .then(response => response.text())
-        .then(body => setData(cleanData(JSON.parse(body))));
-    }
-    catch (error) {
-      console.error(error);
-    }
-  }, []);
-
   // This is to clean data.
-  const cleanData = (data) => {
+  const cleanData = (json_data) => {
     let current_level = 0;
-    let parents = [];
-    ['fdi_inflows', 'fdi_outflows'].map((type) => {
-      data[type] = data[type].map((area, i) => {
-        area.level = parseInt(area.level);
+    const parents = [];
+    ['fdi_inflows', 'fdi_outflows'].map(type => {
+      json_data[type] = json_data[type].map(area => {
+        area.level = parseInt(area.level, 10);
         if (area.level < current_level) {
           while (area.level < current_level) {
             current_level--;
             parents.pop();
           }
           parents.push(area[['Region/economy']]);
-        }
-        else if (area.level >= current_level && area.type !== 'country') {
+        } else if (area.level >= current_level && area.type !== 'country') {
           parents.push(area[['Region/economy']]);
         }
         current_level = area.level;
@@ -105,125 +94,26 @@ const App = () => {
           level: area.level,
           name: area['Region/economy'],
           parents: [...parents],
-          visible: (visible[area['Region/economy']] === true) ? true : false
-        }
+          visible: (visible[area['Region/economy']] === true)
+        };
       });
-    })
-    setActiveData(data[dataType]);
-    return data;
+      return false;
+    });
+    setActiveData(json_data[dataType]);
+    return json_data;
   };
 
-  // Change active data.
   useEffect(() => {
-    if (activeData !== undefined && activeData !== false) {
-      if (!chart) {
-        createChart();
-        toggleLegendItems();
-      }
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data2021.json';
+    try {
+      fetch(data_file)
+        .then(response => response.text())
+        .then(body => setData(cleanData(JSON.parse(body))));
+    } catch (error) {
+      console.error(error);
     }
-  }, [activeData]);
-
-  // Change data type.
-  useEffect(() => {
-    setActiveData(data[dataType]);
-    if (chart) {
-      while (chart.series.length > 0) {
-        chart.series[0].remove(false);
-      }
-      data[dataType].map((data) => {
-        data.visible = (selected[data.name] === true) ? true : false;
-        chart.addSeries(data, false);
-      });
-      toggleLegendItems();
-      chart.redraw();
-    }
-  }, [dataType]);
-
-  // This is to toggle checkboxes and to toggle data.
-  const chooseActiveData = (area) => {
-    chart.series.map((serie, i) => {
-      if (serie.name === area.name) {
-        chart.series[i].setVisible(!selected[area.name], false);
-      }
-    });
-    selected[area.name] = !selected[area.name];
-    setSelected(selected);
-    toggleLegendItems();
-    chart.redraw();
-
-    if (typeof ga !== 'undefined' && selected[area.name]) {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name);
-    }
-  };
-
-  // This is to change data type.
-  const changeDataType = (type) => {
-    let elements = document.getElementsByClassName('data_type');
-    for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove('selected');
-    }
-    event.target.classList.add('selected');
-    setDataType(type);
-
-    if (typeof ga !== 'undefined') {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type);
-    }
-  }
-
-  const toggleLegendItems = () => {
-    setLegend(chart.series.filter((serie) => {
-      if (serie.visible === true) {
-        return {
-          color: serie.color,
-          name: serie.name,
-          symbol: serie.symbol
-        }
-      }
-    }));
-  }
-
-  // This is to toggle linear or logarithmic scale.
-  const toggleLinearLogarithmicScale = (type) => {
-    chart.yAxis[0].update({
-      type: type
-    });
-    let elements = document.getElementsByClassName('linearlogarithmic');
-    for (var i = 0, all = elements.length; i < all; i++) { 
-      elements[i].classList.remove('selected');
-    }
-    event.target.classList.add('selected');
-
-    if (typeof ga !== 'undefined') {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type);
-    }
-  }
-
-  const search = () => {
-    activeData.map((area, i) => {
-      if (event.target.value === '') {
-        visible[area.name] = true;
-      }
-      else if (area.name.toLowerCase().includes(event.target.value.toLowerCase()) === true) {
-        visible[area.name] = true;
-        area.parents.map((parent) => {
-          visible[parent] = true;
-        });
-      }
-      else {
-        visible[area.name] = false;
-      }
-    });
-    setVisible(visible);
-    setSearchTerm(event.target.value);
-  }
-
-  // Not used.
-  // const toggleRelativeToPopulation = () => {
-  //   setRelativeToPopulation(!relativeToPopulation);
-  // }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // This is to draw the legend icon.
   const createChart = () => {
@@ -282,11 +172,13 @@ const App = () => {
         borderRadius: 0,
         borderWidth: 1,
         crosshairs: true,
-        formatter: function () {
-          const values = this.points.map((point, i) => [point.series.name, point.y, point.color]).sort((a, b) => (a[1] < b[1] ? 1 : -1));
+        formatter() {
+          // eslint-disable-next-line react/no-this-in-sfc
+          const values = this.points.map(point => [point.series.name, point.y, point.color]).sort((a, b) => (a[1] < b[1] ? 1 : -1));
           const rows = [];
-          rows.push(values.map((point, i) => '<div style="color: ' + point[2] + '"><span class="' + 'tooltip_label' + '">' + point[0] + ':</span> <span class="' + 'tooltip_value' + '">' + formatNr(roundNr(point[1], 0), ',', ' million', '$') + '</span></div>').join(''));
-          return '<div class="' + 'tooltip_container' + '"><h3 class="' + 'tooltip_header' + '">Year ' + this.x + '</h3>' + rows;
+          rows.push(values.map(point => `<div style="color: ${point[2]}"><span class="tooltip_label">${point[0]}:</span> <span class="tooltip_value">${formatNr(roundNr(point[1], 0), ',', ' million', '$')}</span></div>`).join(''));
+          // eslint-disable-next-line react/no-this-in-sfc
+          return `<div class="tooltip_container"><h3 class="tooltip_header">Year ${this.x}</h3>${rows}`;
         },
         shadow: false,
         shared: true,
@@ -420,7 +312,7 @@ const App = () => {
             fontWeight: 400
           },
           text: 'Millions of dollars',
-          verticalAlign:'top',
+          verticalAlign: 'top',
           x: 94,
           y: -25
         },
@@ -428,40 +320,154 @@ const App = () => {
     });
   };
 
+  const toggleLegendItems = () => {
+    setLegend(chart.series.filter((serie) => {
+      if (serie.visible === true) {
+        return {
+          color: serie.color,
+          name: serie.name,
+          symbol: serie.symbol
+        };
+      }
+      return false;
+    }));
+  };
+
+  // Change active data.
+  useEffect(() => {
+    if (activeData !== undefined && activeData !== false) {
+      if (!chart) {
+        createChart();
+        toggleLegendItems();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeData]);
+
+  // Change data type.
+  useEffect(() => {
+    setActiveData(data[dataType]);
+    if (chart) {
+      while (chart.series.length > 0) {
+        chart.series[0].remove(false);
+      }
+      data[dataType].map(el => {
+        el.visible = (selected[el.name] === true);
+        chart.addSeries(el, false);
+        return true;
+      });
+      toggleLegendItems();
+      chart.redraw();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataType]);
+
+  // This is to toggle checkboxes and to toggle data.
+  const chooseActiveData = (area) => {
+    chart.series.map((serie, i) => {
+      if (serie.name === area.name) {
+        chart.series[i].setVisible(!selected[area.name], false);
+      }
+      return true;
+    });
+    selected[area.name] = !selected[area.name];
+    setSelected(selected);
+    toggleLegendItems();
+    chart.redraw();
+
+    if (typeof g_analytics !== 'undefined' && selected[area.name]) {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name);
+    }
+  };
+
+  // This is to change data type.
+  const changeDataType = (event, type) => {
+    const elements = document.getElementsByClassName('data_type');
+    for (let i = 0, all = elements.length; i < all; i++) {
+      elements[i].classList.remove('selected');
+    }
+    event.target.classList.add('selected');
+    setDataType(type);
+
+    if (typeof g_analytics !== 'undefined') {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type);
+    }
+  };
+
+  // This is to toggle linear or logarithmic scale.
+  const toggleLinearLogarithmicScale = (event, type) => {
+    chart.yAxis[0].update({
+      type
+    });
+    const elements = document.getElementsByClassName('linearlogarithmic');
+    for (let i = 0, all = elements.length; i < all; i++) {
+      elements[i].classList.remove('selected');
+    }
+    event.target.classList.add('selected');
+
+    if (typeof g_analytics !== 'undefined') {
+      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type);
+    }
+  };
+
+  const search = (event) => {
+    activeData.map(area => {
+      if (event.target.value === '') {
+        visible[area.name] = true;
+      } else if (area.name.toLowerCase().includes(event.target.value.toLowerCase()) === true) {
+        visible[area.name] = true;
+        area.parents.map((parent) => {
+          visible[parent] = true;
+          return true;
+        });
+      } else {
+        visible[area.name] = false;
+      }
+      return true;
+    });
+    setVisible(visible);
+  };
+
+  // Not used.
+  // const toggleRelativeToPopulation = () => {
+  //   setRelativeToPopulation(!relativeToPopulation);
+  // }
+
   return (
-    <div className={'app'}>
-      <div className={'layout'}>
+    <div className="app">
+      <div className="layout">
         {
           // Left
         }
-        <div className={'left' + ' ' + 'container'}>
+        <div className="left container">
           {
             // Name
           }
-          <div className={'name_container'}>
+          <div className="name_container">
             <h3>FDI Data Explorer</h3>
           </div>
           {
             // Country selection
           }
-          <div className={'country_selection_container'}>
+          <div className="country_selection_container">
             <h4>Select a country or region</h4>
-            <div className={'search_container'}><input type="text" placeholder="Type to search" onChange={() => search()} /></div>
-            <ul className={'selection_list'}>
+            <div className="search_container"><input type="text" placeholder="Type to search" onChange={(event) => search(event)} /></div>
+            <ul className="selection_list">
               {
                 // Create only when data is ready.
-                activeData && activeData.map((area, i) => {
-                  return (
-                    <li key={i} style={{marginLeft: ((area.level - 1) * 7) + 'px'}}>
-                      <label style={{display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400}} title={'Toggle ' + area.name + ' in the chart'} aria-label={'Toggle ' + area.name + ' in the chart'}>
-                        <span className={'input_container'}>
-                          <input type="checkbox" value={area.name} checked={(selected[area.name] === true) ? true : false} onChange={() => chooseActiveData(area)} />
-                        </span>
-                        <span className={'label_container'}>{area.name}</span>
-                      </label>
-                    </li>
-                  );
-                })
+                activeData && activeData.map((area, i) => (
+                  <li key={area.name} style={{ marginLeft: `${(area.level - 1) * 7}px` }}>
+                    <label style={{ display: ((visible[area.name] === true || visible[area.name] === undefined) ? 'block' : 'none'), fontWeight: (area.area_type === 'region') ? 700 : 400 }} title={`Toggle ${area.name} in the chart`} aria-label={`Toggle ${area.name} in the chart`} htmlFor={`country_${i}`}>
+                      <span className="input_container">
+                        <input type="checkbox" value={area.name} checked={(selected[area.name] === true)} id={`country_${i}`} onChange={() => chooseActiveData(area)} />
+                      </span>
+                      <span className="label_container">{area.name}</span>
+                    </label>
+                  </li>
+                ))
               }
             </ul>
           </div>
@@ -469,13 +475,13 @@ const App = () => {
         {
           // Right
         }
-        <div className={'right' + ' ' + 'container'}>
+        <div className="right container">
           {
             // Title
           }
-          <div className={'title_container'}>
+          <div className="title_container">
             <h3>By region and economy, 1990–2021</h3>
-            <div className={'options_container'}>
+            <div className="options_container">
               {
                 // <label style={{display: 'none'}}>
                 //   <span className={'input_container'}>
@@ -484,39 +490,46 @@ const App = () => {
                 //   <span className={'label_container'}>Relative to Population</span>
                 // </label>
               }
-              <span className={'input_container'}>
-                <button onClick={() => toggleLinearLogarithmicScale('linear')} className={'linearlogarithmic' + ' ' + 'selected'} title="Use linear scale on y-axis" aria-label="Use linear scale on y-axis">Linear</button>
+              <span className="input_container">
+                <button onClick={(event) => toggleLinearLogarithmicScale(event, 'linear')} className="linearlogarithmic selected" title="Use linear scale on y-axis" aria-label="Use linear scale on y-axis" type="button">Linear</button>
               </span>
-              <span className={'input_container'}>
-                <button onClick={() => toggleLinearLogarithmicScale('logarithmic')} className={'linearlogarithmic'} title="Use logarithmic scale on y-axis"  aria-label="Use logarithmic scale on y-axis">Log</button>
+              <span className="input_container">
+                <button onClick={(event) => toggleLinearLogarithmicScale(event, 'logarithmic')} className="linearlogarithmic" title="Use logarithmic scale on y-axis" aria-label="Use logarithmic scale on y-axis" type="button">Log</button>
               </span>
-              <span className={'button_group'}></span>
-              <span className={'input_container'}>
-                <button onClick={() => changeDataType('fdi_inflows')} className={'data_type' + ' ' + 'selected'} title="Select FDI inflows dataset" aria-label="Select FDI inflows dataset">Inflows</button>
+              <span className="button_group" />
+              <span className="input_container">
+                <button onClick={(event) => changeDataType(event, 'fdi_inflows')} className="data_type selected" title="Select FDI inflows dataset" aria-label="Select FDI inflows dataset" type="button">Inflows</button>
               </span>
-              <span className={'input_container'}>
-                <button onClick={() => changeDataType('fdi_outflows')} className={'data_type'} title="Select FDI outflows dataset" aria-label="Select FDI outflows dataset">Outflows</button>
+              <span className="input_container">
+                <button onClick={(event) => changeDataType(event, 'fdi_outflows')} className="data_type" title="Select FDI outflows dataset" aria-label="Select FDI outflows dataset" type="button">Outflows</button>
               </span>
             </div>
           </div>
-          <div className={'chart_container' + ' ' + 'container'}>
-            <div className={'info'} style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex'}}><h3>Select at least one country or region from the left</h3></div>
-            <div className={'highchart_container'} id="highchart-container" style={{'display': Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none'}}></div>
-            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className={'unctad_logo'} />
-            <div className={'legend_container'}>
+          <div className="chart_container container">
+            <div className="info" style={{ display: Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex' }}><h3>Select at least one country or region from the left</h3></div>
+            <div className="highchart_container" id="highchart-container" style={{ display: Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none' }} />
+            <img src="//unctad.org/sites/default/files/2022-06/unctad_logo.svg" alt="UNCTAD logo" className="unctad_logo" />
+            <div className="legend_container">
               {
-                legend && legend.map((legend_item, i) => {
-                  return (<span key={i} style={{color:legend_item.color}} onClick={() => chooseActiveData(legend_item)} title={'Remove ' + legend_item.name + ' from the chart'} aria-label={'Remove ' + legend_item.name + ' from the chart'}>{legendIcon(legend_item.symbol, legend_item.color)}{legend_item.name}</span>);
-                })
+                legend && legend.map(legend_item => (
+                  <button key={legend_item.name} style={{ color: legend_item.color }} onClick={() => chooseActiveData(legend_item)} title={`Remove ${legend_item.name} from the chart`} aria-label={`Remove ${legend_item.name} from the chart`} type="button">
+                    {legendIcon(legend_item.symbol, legend_item.color)}
+                    {legend_item.name}
+                  </button>
+                ))
               }
             </div>
-            <div className={'source_container'}><em>Source:</em> <a href="//unctad.org/topic/investment/world-investment-report" target="_blank">UNCTAD World Investment Report 2022</a></div>
+            <div className="source_container">
+              <em>Source:</em>
+              {' '}
+              <a href="//unctad.org/topic/investment/world-investment-report" target="_blank" rel="noreferrer">UNCTAD World Investment Report 2022</a>
+            </div>
           </div>
         </div>
       </div>
       <noscript>Your browser does not support JavaScript!</noscript>
     </div>
   );
-};
+}
 
 export default App;
