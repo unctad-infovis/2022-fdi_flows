@@ -6,29 +6,24 @@
 .app {
   font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   .layout {
-    @media all and  {
-
-    }
     display: flex;
     overflow-x: scroll;
     overflow-y: hidden;
-    .container {
+    .left_container,
+    .right_container {
       h3 {
         display: inline-block;
         margin: 0 0 0 0;
       }
-      &.left,
-      &.right {
-        >div {
-          border-radius: 2px;
-          border: 1px solid @ungrey20;
-          box-shadow: 1px 1px 1px #f1f1f1;
-          box-sizing: border-box;
-          margin: 10px 5px;
-          padding: 10px;
-        }
+      >div {
+        border-radius: 2px;
+        border: 1px solid @ungrey20;
+        box-shadow: 1px 1px 1px #f1f1f1;
+        box-sizing: border-box;
+        margin: 10px 5px;
+        padding: 10px;
       }
-      &.left {
+      &.left_container {
         max-width: 240px;
         min-width: 240px;
         .name_container {
@@ -75,7 +70,7 @@
           }
         }
       }
-      &.right {
+      &.right_container {
         min-width: 670px;
         width: 100%;
         .title_container {
