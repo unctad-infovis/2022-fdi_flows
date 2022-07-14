@@ -2,6 +2,10 @@
 
 **Live demo** https://unctad-infovis.github.io/2022-fdi_flows/
 
+## Used in
+
+* [Global foreign investment recovered to pre-pandemic levels in 2021, but uncertainty looms](https://unctad.org/news/global-foreign-investment-recovered-pre-pandemic-levels-2021-uncertainty-looms)
+
 ## Rights of usage
 
 Contact Teemo Tebest.
