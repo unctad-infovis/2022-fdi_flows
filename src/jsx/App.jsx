@@ -14,7 +14,7 @@ import legendIcon from './helpers/LegendIcon.jsx';
 highchartsAccessibility(Highcharts);
 highchartsExporting(Highcharts);
 
-const ga = window.ga || undefined;
+const analytics = window.gtag || undefined;
 
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
 // eslint-disable-next-line no-unused-expressions
@@ -104,7 +104,7 @@ function App() {
   };
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data2021.json';
+    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data.json';
     try {
       fetch(data_file)
         .then(response => response.text())
@@ -375,9 +375,13 @@ function App() {
     toggleLegendItems();
     chart.redraw();
 
-    if (typeof g_analytics !== 'undefined' && selected[area.name]) {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseCountry', area.name);
+    if (typeof analytics !== 'undefined' && selected[area.name]) {
+      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      analytics('event', 'Choose Country', {
+        event_category: '2022-fdi_flows',
+        event_label: area.name,
+        transport_type: 'beacon'
+      });
     }
   };
 
@@ -390,9 +394,13 @@ function App() {
     event.target.classList.add('selected');
     setDataType(type);
 
-    if (typeof g_analytics !== 'undefined') {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'chooseDataType', type);
+    if (typeof analytics !== 'undefined') {
+      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      analytics('event', 'Choose Data Type', {
+        event_category: '2022-fdi_flows',
+        event_label: type,
+        transport_type: 'beacon'
+      });
     }
   };
 
@@ -407,9 +415,13 @@ function App() {
     }
     event.target.classList.add('selected');
 
-    if (typeof g_analytics !== 'undefined') {
-      // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      ga('send', 'event', '2021-fdi_flows', 'click', 'toggleScale', type);
+    if (typeof analytics !== 'undefined') {
+      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+      analytics('event', 'Toggle Scale', {
+        event_category: '2022-fdi_flows',
+        event_label: type,
+        transport_type: 'beacon'
+      });
     }
   };
 

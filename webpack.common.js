@@ -73,7 +73,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'assets/img/', to: '../public/assets/img/', noErrorOnMissing: true},
-        { from: 'assets/data/data.json', to: '../public/assets/data/data.json', noErrorOnMissing: true},
+        { from: 'assets/data/data2021.json', to: '../public/assets/data/data.json', noErrorOnMissing: true},
         { from: 'src/font/', to: '../public/font/', noErrorOnMissing: true},
         { from: './favicon.png', to: '../public', noErrorOnMissing: true}
       ]
