@@ -104,7 +104,7 @@ function App() {
   };
 
   useEffect(() => {
-    const data_file = (window.location.href.includes('unctad.org')) ? '/sites/default/files/data-file/2022-fdi_flows.json' : './assets/data/data.json';
+    const data_file = (window.location.href.includes('unctad.org')) ? 'https://storage.unctad.org/2022-fdi_flows/assets/data/data.json' : './assets/data/data.json';
     try {
       fetch(data_file)
         .then(response => response.text())
