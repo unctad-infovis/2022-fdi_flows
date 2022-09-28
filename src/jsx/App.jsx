@@ -278,8 +278,8 @@ function App() {
           allowNegativeLog: true
         },
         gridLineColor: 'rgba(124, 112, 103, 0.2)',
-        gridLineWidth: 1,
         gridLineDashStyle: 'shortdot',
+        gridLineWidth: 1,
         labels: {
           style: {
             color: '#7c7067',
@@ -296,9 +296,8 @@ function App() {
           value: 0,
           width: 1
         }],
-        showLastLabel: true,
         showFirstLabel: true,
-        type: 'linear',
+        showLastLabel: true,
         title: {
           align: 'high',
           enabled: true,
@@ -314,7 +313,8 @@ function App() {
           verticalAlign: 'top',
           x: 94,
           y: -25
-        }
+        },
+        type: 'linear'
       }
     });
   };
