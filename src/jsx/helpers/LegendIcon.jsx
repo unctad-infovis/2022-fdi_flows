@@ -39,4 +39,5 @@ const legendIcon = (symbol, color) => {
   }
   return false;
 };
+
 export default legendIcon;

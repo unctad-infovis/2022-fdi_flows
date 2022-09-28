@@ -115,7 +115,6 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // This is to draw the legend icon.
   const createChart = () => {
     chart = Highcharts.chart('highchart-container', {
       chart: {
@@ -206,6 +205,7 @@ function App() {
             },
             symbol: 'circle'
           },
+          pointStart: start_year,
           states: {
             hover: {
               halo: {
@@ -214,21 +214,20 @@ function App() {
               enabled: true,
               lineWidth: 2
             }
-          },
-          pointStart: start_year
+          }
         }
       },
       responsive: {
         rules: [{
-          condition: {
-            maxWidth: 500
-          },
           chartOptions: {
             legend: {
               align: 'center',
               layout: 'horizontal',
               verticalAlign: 'bottom'
             }
+          },
+          condition: {
+            maxWidth: 500
           }
         }]
       },
