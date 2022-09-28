@@ -177,7 +177,7 @@ function App() {
           const rows = [];
           rows.push(values.map(point => `<div style="color: ${point[2]}"><span class="tooltip_label">${point[0]}:</span> <span class="tooltip_value">${formatNr(roundNr(point[1], 0), ',', ' million', '$')}</span></div>`).join(''));
           // eslint-disable-next-line react/no-this-in-sfc
-          return `<div class="tooltip_container"><h3 class="tooltip_header">Year ${this.x}</h3>${rows}`;
+          return `<div class="tooltip_container"><h3 class="tooltip_header">Year ${this.x}</h3>${rows}</div>`;
         },
         shadow: false,
         shared: true,
