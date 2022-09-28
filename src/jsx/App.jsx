@@ -119,7 +119,7 @@ function App() {
     chart = Highcharts.chart('highchart-container', {
       chart: {
         height: 440,
-        marginTop: [40],
+        marginTop: 40,
         resetZoomButton: {
           theme: {
             fill: '#fff',
@@ -314,7 +314,7 @@ function App() {
           verticalAlign: 'top',
           x: 94,
           y: -25
-        },
+        }
       }
     });
   };
