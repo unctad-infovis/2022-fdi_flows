@@ -107,7 +107,12 @@ function App() {
     const data_file = (window.location.href.includes('unctad.org')) ? 'https://storage.unctad.org/2022-fdi_flows/assets/data/data.json' : './assets/data/data.json';
     try {
       fetch(data_file)
-        .then(response => response.text())
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(response.statusText);
+          }
+          return response.text();
+        })
         .then(body => setData(cleanData(JSON.parse(body))));
     } catch (error) {
       console.error(error);
@@ -126,7 +131,7 @@ function App() {
             r: 0,
             states: {
               hover: {
-                fill: '#0077b8',
+                fill: '#009edb',
                 stroke: 'transparent',
                 style: {
                   color: '#fff'
@@ -148,7 +153,7 @@ function App() {
         },
         zoomType: 'x'
       },
-      colors: ['#0077b8', '#ab1d37', '#005392', '#eb0045', '#9a58af', '#27833a', '#733d96', '#7c7067'],
+      colors: ['#009edb', '#72bf44', '#a066aa', '#ffcb05', '#aaa096', '#eb1f48'],
       credits: {
         enabled: false
       },
