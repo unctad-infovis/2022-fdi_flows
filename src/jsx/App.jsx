@@ -209,7 +209,7 @@ function App() {
               color: 'rgba(0, 0, 0, 0.8)',
               fontSize: '14px'
             },
-            text: '<em>Source:</em> UNCTAD World Investment Report 2022, <em>Note:</em> FDI = Foreign Direct Investment',
+            text: '<em>Source:</em> UNCTAD World Investment Report 2022',
             verticalAlign: 'bottom',
             x: 0
           },
@@ -235,7 +235,7 @@ function App() {
               fontWeight: 400,
               lineHeight: '18px'
             },
-            text: 'By selected region or economy',
+            text: 'By selected region or economy in selected time period',
             widthAdjust: -120,
             x: 100
           },
@@ -248,7 +248,7 @@ function App() {
               fontWeight: 700,
               lineHeight: '34px'
             },
-            text: 'FDI flows between 1990 and 2021',
+            text: 'Foreign direct investment flows',
             widthAdjust: -120,
             x: 100
           }
@@ -270,7 +270,6 @@ function App() {
         verticalAlign: 'bottom'
       },
       title: {
-        margin: 40,
         text: null
       },
       tooltip: {
