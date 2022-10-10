@@ -196,6 +196,7 @@ function App() {
       exporting: {
         buttons: {
           contextButton: {
+            text: 'Export',
             menuItems: ['viewFullscreen', 'separator', 'downloadPNG', 'downloadPDF', 'separator', 'downloadCSV'],
             symbol: 'download',
             symbolFill: '#000'
