@@ -5,6 +5,7 @@ import '../styles/styles.less';
 import Highcharts from 'highcharts';
 import highchartsAccessibility from 'highcharts/modules/accessibility';
 import highchartsExporting from 'highcharts/modules/exporting';
+import highchartsExportData from 'highcharts/modules/export-data';
 
 // Load helpers.
 import formatNr from './helpers/FormatNr.js';
@@ -13,6 +14,32 @@ import legendIcon from './helpers/LegendIcon.jsx';
 
 highchartsAccessibility(Highcharts);
 highchartsExporting(Highcharts);
+highchartsExportData(Highcharts);
+
+Highcharts.setOptions({
+  lang: {
+    decimalPoint: '.',
+    downloadCSV: 'Download CSV data',
+    thousandsSep: ','
+  }
+});
+Highcharts.SVGRenderer.prototype.symbols.download = (x, y, w, h) => {
+  const path = [
+    // Arrow stem
+    'M', x + w * 0.5, y,
+    'L', x + w * 0.5, y + h * 0.7,
+    // Arrow head
+    'M', x + w * 0.3, y + h * 0.5,
+    'L', x + w * 0.5, y + h * 0.7,
+    'L', x + w * 0.7, y + h * 0.5,
+    // Box
+    'M', x, y + h * 0.9,
+    'L', x, y + h,
+    'L', x + w, y + h,
+    'L', x + w, y + h * 0.9
+  ];
+  return path;
+};
 
 const analytics = window.gtag || undefined;
 
@@ -94,6 +121,7 @@ function App() {
           level: area.level,
           name: area['Region/economy'],
           parents: [...parents],
+          showInLegend: (visible[area['Region/economy']] === true),
           visible: (visible[area['Region/economy']] === true)
         };
       });
@@ -125,6 +153,17 @@ function App() {
       chart: {
         height: 440,
         marginTop: 40,
+        events: {
+          redraw() {
+            // eslint-disable-next-line react/no-this-in-sfc
+            this.series.forEach((series) => {
+              series.userOptions.showInLegend = series.visible;
+              series.showInLegend = series.visible;
+            });
+            // eslint-disable-next-line react/no-this-in-sfc
+            this.exporting.filename = 'asdasdas';
+          }
+        },
         resetZoomButton: {
           theme: {
             fill: '#fff',
@@ -158,16 +197,83 @@ function App() {
         enabled: false
       },
       exporting: {
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'separator', 'downloadPNG', 'downloadPDF', 'separator', 'downloadCSV'],
+            symbol: 'download',
+            symbolFill: '#000'
+          }
+        },
         chartOptions: {
+          caption: {
+            align: 'left',
+            margin: 15,
+            style: {
+              color: 'rgba(0, 0, 0, 0.8)',
+              fontSize: '14px'
+            },
+            text: '<em>Source:</em> UNCTAD World Investment Report 2022, <em>Note:</em> FDI = Foreign Direct Investment',
+            verticalAlign: 'bottom',
+            x: 0
+          },
+          chart: {
+            events: {
+              load() {
+                // eslint-disable-next-line react/no-this-in-sfc
+                this.renderer.image('https://unctad.org/sites/default/files/2022-06/unctad_logo.svg', 5, 15, 100, 100).add();
+              }
+            },
+            marginTop: null,
+            height: 600
+          },
           legend: {
             enabled: true
+          },
+          subtitle: {
+            align: 'left',
+            enabled: true,
+            style: {
+              color: 'rgba(0, 0, 0, 0.8)',
+              fontSize: '16px',
+              fontWeight: 400,
+              lineHeight: '18px'
+            },
+            text: 'By selected region or economy',
+            widthAdjust: -120,
+            x: 100
+          },
+          title: {
+            align: 'left',
+            margin: 100,
+            style: {
+              color: '#000',
+              fontSize: '30px',
+              fontWeight: 700,
+              lineHeight: '34px'
+            },
+            text: 'FDI flows between 1990 and 2021',
+            widthAdjust: -120,
+            x: 100
           }
-        }
+        },
+        filename: 'world_investment_report_2022_selected_fdi_flows'
       },
       legend: {
-        enabled: false
+        align: 'left',
+        enabled: false,
+        itemStyle: {
+          color: '#000',
+          cursor: 'default',
+          fontFamily: 'Roboto',
+          fontSize: '14px',
+          fontWeight: 400
+        },
+        layout: 'horizontal',
+        margin: 0,
+        verticalAlign: 'bottom'
       },
       title: {
+        margin: 40,
         text: null
       },
       tooltip: {
@@ -316,7 +422,7 @@ function App() {
           },
           text: 'Millions of dollars',
           verticalAlign: 'top',
-          x: 94,
+          x: 100,
           y: -25
         },
         type: 'linear'
@@ -357,6 +463,7 @@ function App() {
       }
       data[dataType].map(el => {
         el.visible = (selected[el.name] === true);
+        el.showInLegend = (selected[el.name] === true);
         chart.addSeries(el, false);
         return true;
       });
