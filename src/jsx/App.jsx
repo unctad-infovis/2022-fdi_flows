@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import '../styles/styles.less';
 
 // https://www.highcharts.com/
@@ -99,7 +99,7 @@ function App() {
   // const [relativeToPopulation, setRelativeToPopulation] = useState(false);
 
   // This is to clean data.
-  const cleanData = (json_data) => {
+  const cleanData = useCallback((json_data) => {
     let current_level = 0;
     const parents = [];
     ['fdi_inflows', 'fdi_outflows'].map(type => {
@@ -129,7 +129,7 @@ function App() {
     });
     setActiveData(json_data[dataType]);
     return json_data;
-  };
+  }, [dataType, visible]);
 
   useEffect(() => {
     const data_file = (window.location.href.includes('unctad.org')) ? 'https://storage.unctad.org/2022-fdi_flows/assets/data/data.json' : './assets/data/data.json';
@@ -145,10 +145,9 @@ function App() {
     } catch (error) {
       console.error(error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cleanData]);
 
-  const createChart = () => {
+  const createChart = useCallback(() => {
     chart = Highcharts.chart('highchart-container', {
       chart: {
         height: 440,
@@ -160,8 +159,6 @@ function App() {
               series.userOptions.showInLegend = series.visible;
               series.showInLegend = series.visible;
             });
-            // eslint-disable-next-line react/no-this-in-sfc
-            this.exporting.filename = 'asdasdas';
           }
         },
         resetZoomButton: {
@@ -428,7 +425,7 @@ function App() {
         type: 'linear'
       }
     });
-  };
+  }, [activeData]);
 
   const toggleLegendItems = () => {
     setLegend(chart.series.filter((serie) => {
@@ -451,8 +448,7 @@ function App() {
         toggleLegendItems();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeData]);
+  }, [activeData, createChart]);
 
   // Change data type.
   useEffect(() => {
@@ -470,8 +466,7 @@ function App() {
       toggleLegendItems();
       chart.redraw();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataType]);
+  }, [data, dataType, selected]);
 
   // This is to toggle checkboxes and to toggle data.
   const chooseActiveData = (area) => {
