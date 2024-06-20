@@ -532,21 +532,22 @@ function App() {
   };
 
   const search = (event) => {
+    const visible_tmp = {};
     activeData.map(area => {
       if (event.target.value === '') {
-        visible[area.name] = true;
+        visible_tmp[area.name] = true;
       } else if (area.name.toLowerCase().includes(event.target.value.toLowerCase()) === true) {
-        visible[area.name] = true;
+        visible_tmp[area.name] = true;
         area.parents.map((parent) => {
-          visible[parent] = true;
+          visible_tmp[parent] = true;
           return true;
         });
       } else {
-        visible[area.name] = false;
+        visible_tmp[area.name] = false;
       }
       return true;
     });
-    setVisible(visible);
+    setVisible(visible_tmp);
   };
 
   // Not used.
