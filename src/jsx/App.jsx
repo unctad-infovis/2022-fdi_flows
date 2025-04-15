@@ -471,7 +471,7 @@ function App() {
     if (typeof analytics !== 'undefined' && label_event !== false && value_event !== false) {
       analytics('event', 'project_interaction', {
         label: label_event,
-        project_name: '2022-edar_report',
+        project_name: '2022-fdi_flows',
         transport_type: 'beacon',
         value: value_event
       });
