@@ -41,8 +41,6 @@ Highcharts.SVGRenderer.prototype.symbols.download = (x, y, w, h) => {
   return path;
 };
 
-const analytics = window.gtag || undefined;
-
 // https://stackoverflow.com/questions/63518108/highcharts-negative-logarithmic-scale-solution-stopped-working
 // eslint-disable-next-line no-unused-expressions
 ((H) => {
@@ -468,6 +466,18 @@ function App() {
     }
   }, [data, dataType, selected]);
 
+  const analytics = window.gtag || undefined;
+  const track = useCallback((label_event = false, value_event = false) => {
+    if (typeof analytics !== 'undefined' && label_event !== false && value_event !== false) {
+      analytics('event', 'project_interaction', {
+        label: label_event,
+        project_name: '2022-edar_report',
+        transport_type: 'beacon',
+        value: value_event
+      });
+    }
+  }, [analytics]);
+
   // This is to toggle checkboxes and to toggle data.
   const chooseActiveData = (area) => {
     chart.series.map((serie, i) => {
@@ -481,14 +491,7 @@ function App() {
     toggleLegendItems();
     chart.redraw();
 
-    if (typeof analytics !== 'undefined' && selected[area.name]) {
-      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      analytics('event', 'Choose Country', {
-        event_category: '2022-fdi_flows',
-        event_label: area.name,
-        transport_type: 'beacon'
-      });
-    }
+    track('Choose country', area.name);
   };
 
   // This is to change data type.
@@ -500,14 +503,7 @@ function App() {
     event.target.classList.add('selected');
     setDataType(type);
 
-    if (typeof analytics !== 'undefined') {
-      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      analytics('event', 'Choose Data Type', {
-        event_category: '2022-fdi_flows',
-        event_label: type,
-        transport_type: 'beacon'
-      });
-    }
+    track('Choose Data Type', type);
   };
 
   // This is to toggle linear or logarithmic scale.
@@ -521,14 +517,7 @@ function App() {
     }
     event.target.classList.add('selected');
 
-    if (typeof analytics !== 'undefined') {
-      // analytics('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-      analytics('event', 'Toggle Scale', {
-        event_category: '2022-fdi_flows',
-        event_label: type,
-        transport_type: 'beacon'
-      });
-    }
+    track('Toggle Scale', type);
   };
 
   const search = (event) => {
