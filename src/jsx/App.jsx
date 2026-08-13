@@ -216,7 +216,7 @@ function App() {
             events: {
               load() {
                 // eslint-disable-next-line react/no-this-in-sfc
-                this.renderer.image('https://unctad.org/sites/default/files/2022-11/unctad_logo.svg', 5, 15, 100, 100).add();
+                this.renderer.image(`${window.location.href.includes('unctad.org') ? 'https://storage.unctad.org/2022-fdi_flows/' : './'}assets/img/unctad_logo.svg`, 5, 15, 100, 100).add();
               }
             },
             marginTop: null,
