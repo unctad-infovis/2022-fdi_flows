@@ -616,7 +616,7 @@ function App() {
           <div className="chart_container">
             <div className="info" style={{ display: Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'none' : 'flex' }}><h3>Select at least one country or region from the left</h3></div>
             <div className="highchart_container" id="highchart-container" style={{ display: Object.values(selected).reduce((a, item) => a + item, 0) > 0 ? 'block' : 'none' }} />
-            <img src="//unctad.org/sites/default/files/2022-11/unctad_logo.svg" alt="UNCTAD logo" className="unctad_logo" />
+            <img src={`${window.location.href.includes('unctad.org') ? 'https://storage.unctad.org/2022-fdi_flows/' : './'}assets/img/unctad_logo.svg`} alt="UNCTAD logo" className="unctad_logo" />
             <div className="legend_container">
               {
                 legend && legend.map(legend_item => (
